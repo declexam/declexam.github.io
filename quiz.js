@@ -905,22 +905,29 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsContainer.textContent = `Your score: ${score}/${currentQuestions.length}`;
 
         if (incorrectQuestions.length > 0) {
-            const incorrectFeedback = document.createElement('div');
-            incorrectFeedback.innerHTML = '<h3>Incorrect Answers:</h3>';
+            const feedbackContainer = document.createElement('div');
+            feedbackContainer.innerHTML = '<h3>Feedback:</h3>';
 
-            incorrectQuestions.forEach(({ question, correctAnswers, selectedOptions }) => {
+            currentQuestions.forEach(questionData => {
                 const questionFeedback = document.createElement('div');
+                const selectedOptions = Array.from(document.querySelectorAll(`input[name="${questionData.question}"]:checked`)).map(input => input.value);
+
+                const isCorrect = selectedOptions.length === questionData.correctAnswers.length &&
+                    selectedOptions.every(value => questionData.correctAnswers.includes(value));
+
                 questionFeedback.innerHTML = `
-                    <p><strong>Question:</strong> ${question}</p>
-                    <p><strong>Correct Answers:</strong> ${correctAnswers.join(', ')}</p>
-                    <p><strong>Your Answers:</strong> ${selectedOptions.join(', ')}</p>
-                `;
-                incorrectFeedback.appendChild(questionFeedback);
+                <p><strong>Question:</strong> ${questionData.question}</p>
+                <p><strong>Correct Answers:</strong> ${questionData.correctAnswers.join(', ')}</p>
+                <p><strong>Your Answers:</strong> ${selectedOptions.join(', ')}</p>
+                <p style="color: ${isCorrect ? 'green' : 'red'};">${isCorrect ? 'Correct!' : 'Incorrect.'}</p>
+            `;
+                feedbackContainer.appendChild(questionFeedback);
             });
 
-            resultsContainer.appendChild(incorrectFeedback);
+            resultsContainer.appendChild(feedbackContainer);
         }
     }
+
 
     function applySettings() {
         const numQuestions = parseInt(prompt('Enter number of questions (1-100):'), 10);
